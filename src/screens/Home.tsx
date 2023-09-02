@@ -1,17 +1,25 @@
 import React from "react";
-import { View, Text, Button } from "react-native";
+import { View, Text, Button, StyleSheet } from "react-native";
 import FakeTwo from "../serwers/fakeServerOne/DisplayFakeData";
 const HomeScreen = ({ navigation }: any) => {
   return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+    <View style={styles.container}>
       <Text>Home Screen</Text>
       <Button
         title="Go to Details"
         onPress={() => navigation.navigate("Details")}
       />
-      <FakeTwo />
+      <View style={styles.viewFakeTwo}>
+        <FakeTwo />
+      </View>
     </View>
   );
 };
+const styles = StyleSheet.create({
+  container: { flex: 1, alignItems: "center" },
+  viewFakeTwo: {
+    paddingHorizontal: 20,
+  },
+});
 
 export default HomeScreen;

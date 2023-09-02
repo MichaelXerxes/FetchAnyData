@@ -1,14 +1,24 @@
 import React, { Component } from "react";
-import { Text, View, FlatList } from "react-native";
+import {
+  Text,
+  View,
+  FlatList,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
 import { endpointsNew } from "./fakeSerwer";
 import { User } from "../../database/db";
-
+const screenWidth = Dimensions.get("window").width;
+interface Props {
+  openItem?: () => void;
+}
 interface State {
   users: User[];
 }
 
-class FakeTwo extends Component<{}, State> {
-  constructor(props: {}) {
+class FakeTwo extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
     this.state = {
       users: [],
@@ -24,7 +34,14 @@ class FakeTwo extends Component<{}, State> {
   keyExtractor = (item: User) => item.id.toString();
 
   renderItem = ({ item }: { item: User }) => (
-    <Text>{`${item.name} (${item.email})`}</Text>
+    <TouchableOpacity onPress={this.props.openItem}>
+      <View style={styles.container}>
+        <View style={styles.viewName}>
+          <Text style={styles.textName}>{`${item.name} `}</Text>
+        </View>
+        <Text style={styles.textEmail}>{item.email}</Text>
+      </View>
+    </TouchableOpacity>
   );
 
   render() {
@@ -42,5 +59,27 @@ class FakeTwo extends Component<{}, State> {
     );
   }
 }
+const styles = StyleSheet.create({
+  container: {
+    padding: 2,
+    width: screenWidth,
 
+    paddingHorizontal: 16,
+    marginTop: 5,
+    borderBottomColor: "orange",
+    borderBottomWidth: 1,
+  },
+  viewName: {
+    alignItems: "center",
+  },
+  textName: {
+    fontSize: 16,
+    color: "brown",
+    fontWeight: "bold",
+  },
+  textEmail: {
+    fontSize: 14,
+    color: "grey",
+  },
+});
 export default FakeTwo;
