@@ -1,18 +1,29 @@
 import React from "react";
-import { View, Text, Button, StyleSheet } from "react-native";
+import { View, Text, Button, StyleSheet, ScrollView } from "react-native";
 import FakeTwo from "../serwers/fakeServerOne/DisplayFakeData";
 const HomeScreen = ({ navigation }: any) => {
+  const openItem = (item: any, navigation: any) => {
+    navigation.navigate("Details");
+  };
   return (
-    <View style={styles.container}>
-      <Text>Home Screen</Text>
-      <Button
-        title="Go to Details"
-        onPress={() => navigation.navigate("Details")}
-      />
-      <View style={styles.viewFakeTwo}>
-        <FakeTwo />
+    <ScrollView>
+      <View style={styles.container}>
+        <Text>Home Screen</Text>
+        <Button
+          title="Go to Details"
+          onPress={() => navigation.navigate("Details")}
+        />
+        <Button
+          title="Go to Manager"
+          onPress={() => navigation.navigate("Manager")}
+        />
+        <Button
+          title="Go to New User"
+          onPress={() => navigation.navigate("NewUserScreen")}
+        />
+        <View style={styles.viewFakeTwo}></View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 const styles = StyleSheet.create({
