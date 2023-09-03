@@ -1,25 +1,33 @@
 import React from "react";
 import { View, Text, Button, StyleSheet, ScrollView } from "react-native";
+import CustomButton from "../components/CustomButton";
 import FakeTwo from "../serwers/fakeServerOne/DisplayFakeData";
 const HomeScreen = ({ navigation }: any) => {
   const openItem = (item: any, navigation: any) => {
     navigation.navigate("Details");
   };
+  const goToAnyScreen = (screen: string) => {
+    navigation.navigate(screen);
+  };
   return (
     <ScrollView>
       <View style={styles.container}>
         <Text>Home Screen</Text>
-        <Button
+        <CustomButton
+          onPress={() => goToAnyScreen("Details")}
           title="Go to Details"
-          onPress={() => navigation.navigate("Details")}
         />
-        <Button
+        <CustomButton
+          onPress={() => goToAnyScreen("Manager")}
           title="Go to Manager"
-          onPress={() => navigation.navigate("Manager")}
         />
-        <Button
+        <CustomButton
+          onPress={() => goToAnyScreen("NewUserScreen")}
           title="Go to New User"
-          onPress={() => navigation.navigate("NewUserScreen")}
+        />
+        <CustomButton
+          onPress={() => goToAnyScreen("ShopScreen")}
+          title="Go to Shop Screen"
         />
         <View style={styles.viewFakeTwo}></View>
       </View>
