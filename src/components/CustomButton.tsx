@@ -6,10 +6,23 @@ interface Props {
   title: string;
 }
 const CustomButton: React.FC<Props> = ({ onPress, title }) => {
+  const [isFocus, setIsFocus] = useState<boolean>(false);
+
+  const onFocus = () => {
+    setIsFocus(true);
+  };
+
+  const onBlur = () => {
+    setIsFocus(false);
+  };
   return (
-    <TouchableOpacity onPress={onPress}>
-      <View style={styles.container}>
-        <Text style={styles.title}>{title}</Text>
+    <TouchableOpacity onPress={onPress} onPressIn={onFocus} onPressOut={onBlur}>
+      <View
+        style={isFocus ? [styles.container, styles.focused] : styles.container}
+      >
+        <Text style={isFocus ? [styles.title, { color: "red" }] : styles.title}>
+          {title}
+        </Text>
       </View>
     </TouchableOpacity>
   );
@@ -21,14 +34,20 @@ const styles = StyleSheet.create({
     height: 70,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "black",
+    backgroundColor: "white",
     padding: 6,
     marginTop: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "black",
   },
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "white",
+    color: "black",
+  },
+  focused: {
+    borderColor: "red",
   },
 });
 
