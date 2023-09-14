@@ -15,24 +15,25 @@ import {
 } from "../serwers/fakeServerOne/fakeSerwerShop";
 import { ProductIDStockX, ProductX } from "../database/db-products-stock";
 import { ShopScreenNavigationProps } from "../navigation/navigationTypes";
+import { DetailsItemData } from "./DetailsScreen";
 const screenWIdth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;
 const items = Array.from({ length: 10 }, (_, i) => i + 1);
 interface State {
   totalPrice: number;
   products: any;
-  currentItemStock: any;
   stocks: any;
+  receivedData?: DetailsItemData;
 }
 interface Props extends ShopScreenNavigationProps {}
 class ShopScreen extends Component<Props, State> {
+  _unsubscribeFocus: any;
   constructor(props: Props) {
     super(props);
 
     this.state = {
       totalPrice: 0,
       products: null,
-      currentItemStock: null,
       stocks: null,
     };
   }
@@ -40,15 +41,25 @@ class ShopScreen extends Component<Props, State> {
     endpointsNewShop["/productShopDatabases"]["GET"]().then((data) => {
       this.setState({ products: data });
     });
-    endpointsNewStock["/shopStockDatabases"]["GET"]().then(
-      (data) => {
-        this.setState({ stocks: data });
-      },
-      () => {
-        console.log(this.state.currentItemStock);
-      }
+    endpointsNewStock["/shopStockDatabases"]["GET"]().then((data) => {
+      this.setState({ stocks: data });
+    });
+    this._unsubscribeFocus = this.props.navigation.addListener(
+      "focus",
+      this.handleFocus
     );
   }
+
+  handleFocus = () => {
+    if (this.props.route.params && this.props.route.params.dataFromDetails) {
+      this.setState(
+        { receivedData: this.props.route.params.dataFromDetails },
+        () => {
+          console.log("recive", this.state.receivedData);
+        }
+      );
+    }
+  };
   findCurrentProductStock(id: number): number {
     const stockItem = this.state.stocks.find(
       (product: ProductIDStockX) => id === product.productID
@@ -58,6 +69,7 @@ class ShopScreen extends Component<Props, State> {
 
   render() {
     const { navigation } = this.props;
+    const { receivedData } = this.state;
     return (
       <ImageBackground
         source={shop}
@@ -96,7 +108,12 @@ class ShopScreen extends Component<Props, State> {
           </ScrollView>
         </View>
         <ScrollView>
-          <View style={styles.flatList}></View>
+          <View style={styles.flatList}>
+            <Text>Name : {receivedData?.itemName}</Text>
+            <Text>Id : {receivedData?.itemId}</Text>
+            <Text>{receivedData?.itemtoBuy}</Text>
+            <Text>Price :{receivedData?.totalPrice}</Text>
+          </View>
           <View style={styles.details}>
             <Text>Total price: {this.state.totalPrice}</Text>
           </View>
@@ -134,7 +151,7 @@ const styles = StyleSheet.create({
     color: "black",
     marginTop: 5,
   },
-  name: { fontSize: 14, color: "red", fontWeight: "700", marginTop: 5 },
+  name: { fontSize: 18, color: "orange", fontWeight: "700", marginTop: 5 },
   value: { fontSize: 14, color: "red", fontWeight: "700", marginTop: 5 },
   flatList: {
     width: "100%",
