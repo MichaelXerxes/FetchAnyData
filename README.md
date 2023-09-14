@@ -29,8 +29,7 @@
 ---
 
 <p align="center">
- 
- 
+   <img alt="image1" src="https://github.com/MichaelXerxes/Quizzes/assets/81194285/0b196c03-39b4-4046-b57d-0cd315e90f65"   width="200" height="400">
   <br>
   <em>X</em>
 </p>
