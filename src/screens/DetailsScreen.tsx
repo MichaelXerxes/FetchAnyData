@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { NavigationProps } from "../navigation/navigationTypes";
 import { DetailsScreenProps } from "../navigation/navigationTypes";
 export interface DetailsItemData {
   itemtoBuy: number;
@@ -10,29 +9,28 @@ export interface DetailsItemData {
 }
 const DetailsScreen: React.FC<DetailsScreenProps> = ({ route, navigation }) => {
   const { product, stock } = route.params;
+  const [currentStock, setCurrentStock] = useState<number>(stock);
   const [itemToBuy, setItemsToBuy] = useState<number>(0);
   const [total, setTotal] = useState<number>(0);
-  const [data, setData] = useState<DetailsItemData>({
-    itemtoBuy: 0,
-    totalPrice: 0,
-    itemId: 0,
-    itemName: "",
-  });
   useEffect(() => {
     setTotal(itemToBuy * (product.productValue as number));
   }, [itemToBuy]);
   function addItems() {
     let items = itemToBuy;
+    let currentStockItem = currentStock;
     if (itemToBuy < stock) {
       setItemsToBuy((items += 1));
+      setCurrentStock(currentStockItem - 1);
     } else {
       setItemsToBuy(stock);
     }
   }
   function reduceItems() {
     let items = itemToBuy;
+    let currentStockItem = currentStock;
     if (itemToBuy > 0) {
       setItemsToBuy((items -= 1));
+      setCurrentStock(currentStockItem + 1);
     } else {
       setItemsToBuy(0);
     }
@@ -61,7 +59,7 @@ const DetailsScreen: React.FC<DetailsScreenProps> = ({ route, navigation }) => {
         Size: {product.productWidth}x{product.productHeight}
       </Text>
       <Text style={styles.value}>Value: {product.productValue}</Text>
-      <Text style={styles.value}>Stock: {stock}</Text>
+      <Text style={styles.value}>Stock: {currentStock}</Text>
       <View style={styles.row}>
         <TouchableOpacity onPress={() => addItems()}>
           <View style={styles.buttonView}>
@@ -90,19 +88,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    //justifyContent: "center"
     paddingHorizontal: 12,
   },
-  name: { fontSize: 22, fontWeight: "800", color: "black", marginTop: 40 },
+  name: { fontSize: 22, fontWeight: "800", color: "black", marginTop: 120 },
   description: { marginTop: 30, fontSize: 16, color: "grey" },
   weight: { fontSize: 18, color: "red", fontWeight: "700", marginTop: 20 },
   size: { fontSize: 16, color: "grey", fontWeight: "700", marginTop: 20 },
   value: { fontSize: 18, color: "red", fontWeight: "700", marginTop: 20 },
   row: {
     flexDirection: "row",
-    // backgroundColor: "green",
-
-    //alignContent: "space-around",
   },
   buttonView: {
     width: 100,

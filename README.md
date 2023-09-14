@@ -1,8 +1,11 @@
 # FetchAnyData and Shop exercise
+
+<div align="center">
 <h2 align="center">Using fake Server</h2>
 <p align="center">Testing fetching methods and endpoints</p>
 
 ---
+
 <h2 align="center" color="black">## Image Gallery</h2>
 
 <p align="center">Here are some images related to the project:</p>
@@ -24,6 +27,7 @@
 </p>
 
 ---
+
 <p align="center">
  
  
@@ -32,6 +36,7 @@
 </p>
 
 ---
+
 <p align="center">
  
   <br>
@@ -39,3 +44,5 @@
 </p>
 
 ---
+
+</div>

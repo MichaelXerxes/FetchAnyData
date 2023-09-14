@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -7,8 +7,9 @@ import {
   Dimensions,
   ScrollView,
   TouchableOpacity,
+  FlatList,
 } from "react-native";
-import { shop, shop2 } from "../assets/exports";
+import { shop } from "../assets/exports";
 import {
   endpointsNewShop,
   endpointsNewStock,
@@ -16,112 +17,125 @@ import {
 import { ProductIDStockX, ProductX } from "../database/db-products-stock";
 import { ShopScreenNavigationProps } from "../navigation/navigationTypes";
 import { DetailsItemData } from "./DetailsScreen";
+import { ShopContext } from "../mobX/ShopStore";
+
 const screenWIdth = Dimensions.get("window").width;
-const screenHeight = Dimensions.get("window").height;
-const items = Array.from({ length: 10 }, (_, i) => i + 1);
+
 interface State {
   totalPrice: number;
-  products: any;
-  stocks: any;
+  products: ProductX[] | null;
+  stocks: ProductIDStockX[] | null;
   receivedData?: DetailsItemData;
+  userShopingItems: DetailsItemData[];
 }
-interface Props extends ShopScreenNavigationProps {}
-class ShopScreen extends Component<Props, State> {
-  _unsubscribeFocus: any;
-  constructor(props: Props) {
-    super(props);
 
-    this.state = {
-      totalPrice: 0,
-      products: null,
-      stocks: null,
-    };
-  }
-  componentDidMount() {
+interface Props extends ShopScreenNavigationProps {}
+
+const ShopScreen: React.FC<Props> = ({ navigation, route }) => {
+  const context = useContext(ShopContext);
+
+  const [state, setState] = useState<State>({
+    totalPrice: 0,
+    products: null,
+    stocks: null,
+    userShopingItems: [],
+  });
+
+  useEffect(() => {
     endpointsNewShop["/productShopDatabases"]["GET"]().then((data) => {
-      this.setState({ products: data });
+      setState((prevState) => ({ ...prevState, products: data }));
     });
     endpointsNewStock["/shopStockDatabases"]["GET"]().then((data) => {
-      this.setState({ stocks: data });
+      setState((prevState) => ({ ...prevState, stocks: data }));
     });
-    this._unsubscribeFocus = this.props.navigation.addListener(
-      "focus",
-      this.handleFocus
-    );
-  }
 
-  handleFocus = () => {
-    if (this.props.route.params && this.props.route.params.dataFromDetails) {
-      this.setState(
-        { receivedData: this.props.route.params.dataFromDetails },
-        () => {
-          console.log("recive", this.state.receivedData);
-        }
-      );
+    const unsubscribeFocus = navigation.addListener("focus", handleFocus);
+
+    return () => {
+      unsubscribeFocus();
+    };
+  }, [navigation, route.params]);
+
+  const handleFocus = () => {
+    if (route.params && route.params.dataFromDetails) {
+      const receivedData = route.params.dataFromDetails;
+      setState((prevState) => ({
+        ...prevState,
+        receivedData: receivedData,
+        userShopingItems: [...prevState.userShopingItems, receivedData],
+      }));
+      if (context && receivedData) {
+        context.addToShoppingList(receivedData);
+      }
     }
   };
-  findCurrentProductStock(id: number): number {
-    const stockItem = this.state.stocks.find(
+
+  const findCurrentProductStock = (id: number): number => {
+    const stockItem = state.stocks?.find(
       (product: ProductIDStockX) => id === product.productID
     );
     return stockItem ? stockItem.currentStock : 0;
-  }
+  };
 
-  render() {
-    const { navigation } = this.props;
-    const { receivedData } = this.state;
-    return (
-      <ImageBackground
-        source={shop}
-        style={styles.container}
-        resizeMode="stretch"
-      >
-        <Text style={styles.title}>Hello Shop</Text>
+  const renderItem = (receivedData: DetailsItemData) => (
+    <View>
+      <View style={styles.flatList}>
+        <Text>Name : {receivedData.itemName}</Text>
 
-        <View>
-          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-            {this.state.products &&
-              this.state.products.map((product: ProductX, index: number) => (
-                <View key={index} style={styles.item}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      navigation.navigate("DetailsScreen", {
-                        product,
-                        stock: this.findCurrentProductStock(product.id),
-                      });
-                    }}
-                  >
-                    <View style={styles.firstRow}>
-                      <Text style={styles.name}>{product.productName}</Text>
-
-                      <Text style={styles.text}>
-                        Size:
-                        {product.productWidth}x{product.productHeight}
-                      </Text>
-                      <Text style={styles.value}>
-                        Value: {product.productValue}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              ))}
-          </ScrollView>
+        <Text>Stock: {receivedData.itemtoBuy}</Text>
+        {/* <Text>Price :{receivedData.totalPrice}</Text> */}
+        <View style={styles.details}>
+          <Text>Total price: {receivedData.totalPrice}</Text>
         </View>
-        <ScrollView>
-          <View style={styles.flatList}>
-            <Text>Name : {receivedData?.itemName}</Text>
-            <Text>Id : {receivedData?.itemId}</Text>
-            <Text>{receivedData?.itemtoBuy}</Text>
-            <Text>Price :{receivedData?.totalPrice}</Text>
-          </View>
-          <View style={styles.details}>
-            <Text>Total price: {this.state.totalPrice}</Text>
-          </View>
+      </View>
+    </View>
+  );
+
+  return (
+    <ImageBackground
+      source={shop}
+      style={styles.container}
+      resizeMode="stretch"
+    >
+      <Text style={styles.title}>Hello Shop</Text>
+      <View>
+        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+          {state.products &&
+            state.products.map((product, index) => (
+              <View key={index} style={styles.item}>
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate("DetailsScreen", {
+                      product,
+                      stock: findCurrentProductStock(product.id),
+                    });
+                  }}
+                >
+                  <View style={styles.firstRow}>
+                    <Text style={styles.name}>{product.productName}</Text>
+                    <Text style={styles.text}>
+                      Size:
+                      {product.productWidth}x{product.productHeight}
+                    </Text>
+                    <Text style={styles.value}>
+                      Value: {product.productValue}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            ))}
         </ScrollView>
-      </ImageBackground>
-    );
-  }
-}
+      </View>
+      <View style={styles.flatList}>
+        <FlatList
+          data={state.userShopingItems}
+          renderItem={({ item, index }) => renderItem(item)}
+          keyExtractor={(item, index) => index.toString()}
+        />
+      </View>
+    </ImageBackground>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -155,13 +169,15 @@ const styles = StyleSheet.create({
   value: { fontSize: 14, color: "red", fontWeight: "700", marginTop: 5 },
   flatList: {
     width: "100%",
-    height: 200,
+    //height: 200,
     backgroundColor: "white",
+    flexDirection: "row",
+    justifyContent: "space-evenly",
   },
   details: {
-    width: "100%",
-    height: 100,
-    marginTop: 20,
+    // width: "100%",
+    // height: 100,
+    // marginTop: 20,
   },
 });
 

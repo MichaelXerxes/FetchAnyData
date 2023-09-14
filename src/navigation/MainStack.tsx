@@ -18,7 +18,7 @@ const MainStack = () => {
       <Stack.Screen
         name="DetailsScreen"
         component={DetailsScreen}
-        // options={{ headerShown: false }}
+        options={{ headerShown: false }}
       />
       <Stack.Screen name="Manager" component={ManagerScreen} />
       <Stack.Screen
