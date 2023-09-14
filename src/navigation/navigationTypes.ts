@@ -1,9 +1,9 @@
 import { NavigationProp, RouteProp } from "@react-navigation/native";
-import { ProductX } from "../database/db-products-stock";
-
+import { ProductX, ProductIDStockX } from "../database/db-products-stock";
+import { StackScreenProps } from "@react-navigation/stack";
 export type RootStackParamList = {
   Home: undefined;
-  Details: { product: ProductX };
+  DetailsScreen: { product: ProductX; stock: number };
   Manager: undefined;
   NewUserScreen: undefined;
   ShopScreen: undefined;
@@ -17,3 +17,7 @@ export type ShopScreenNavigationProps = {
   navigation: NavigationProp<RootStackParamList, "ShopScreen">;
   route: RouteProp<RootStackParamList, "ShopScreen">;
 };
+export type DetailsScreenProps = StackScreenProps<
+  RootStackParamList,
+  "DetailsScreen"
+>;

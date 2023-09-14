@@ -10,8 +10,16 @@ const Stack = createStackNavigator();
 const MainStack = () => {
   return (
     <Stack.Navigator initialRouteName="Home">
-      <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="Details" component={DetailsScreen} />
+      <Stack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="DetailsScreen"
+        component={DetailsScreen}
+        // options={{ headerShown: false }}
+      />
       <Stack.Screen name="Manager" component={ManagerScreen} />
       <Stack.Screen
         name="NewUserScreen"

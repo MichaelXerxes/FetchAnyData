@@ -9,8 +9,11 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { shop, shop2 } from "../assets/exports";
-import { endpointsNewShop } from "../serwers/fakeServerOne/fakeSerwerShop";
-import { ProductX } from "../database/db-products-stock";
+import {
+  endpointsNewShop,
+  endpointsNewStock,
+} from "../serwers/fakeServerOne/fakeSerwerShop";
+import { ProductIDStockX, ProductX } from "../database/db-products-stock";
 import { ShopScreenNavigationProps } from "../navigation/navigationTypes";
 const screenWIdth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;
@@ -18,6 +21,8 @@ const items = Array.from({ length: 10 }, (_, i) => i + 1);
 interface State {
   totalPrice: number;
   products: any;
+  currentItemStock: any;
+  stocks: any;
 }
 interface Props extends ShopScreenNavigationProps {}
 class ShopScreen extends Component<Props, State> {
@@ -27,12 +32,28 @@ class ShopScreen extends Component<Props, State> {
     this.state = {
       totalPrice: 0,
       products: null,
+      currentItemStock: null,
+      stocks: null,
     };
   }
   componentDidMount() {
     endpointsNewShop["/productShopDatabases"]["GET"]().then((data) => {
       this.setState({ products: data });
     });
+    endpointsNewStock["/shopStockDatabases"]["GET"]().then(
+      (data) => {
+        this.setState({ stocks: data });
+      },
+      () => {
+        console.log(this.state.currentItemStock);
+      }
+    );
+  }
+  findCurrentProductStock(id: number): number {
+    const stockItem = this.state.stocks.find(
+      (product: ProductIDStockX) => id === product.productID
+    );
+    return stockItem ? stockItem.currentStock : 0;
   }
 
   render() {
@@ -52,20 +73,23 @@ class ShopScreen extends Component<Props, State> {
                 <View key={index} style={styles.item}>
                   <TouchableOpacity
                     onPress={() => {
-                      navigation.navigate("Details", { product });
+                      navigation.navigate("DetailsScreen", {
+                        product,
+                        stock: this.findCurrentProductStock(product.id),
+                      });
                     }}
                   >
                     <View style={styles.firstRow}>
-                      <Text style={styles.text}>{product.productName}</Text>
-                      <Text style={styles.text}>{product.productWeight}</Text>
+                      <Text style={styles.name}>{product.productName}</Text>
+
                       <Text style={styles.text}>
+                        Size:
                         {product.productWidth}x{product.productHeight}
                       </Text>
-                      <Text style={styles.text}>{product.productValue}</Text>
+                      <Text style={styles.value}>
+                        Value: {product.productValue}
+                      </Text>
                     </View>
-                    <Text style={[styles.text, { fontSize: 10 }]}>
-                      {product.productDescription}
-                    </Text>
                   </TouchableOpacity>
                 </View>
               ))}
@@ -108,7 +132,10 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 12,
     color: "black",
+    marginTop: 5,
   },
+  name: { fontSize: 14, color: "red", fontWeight: "700", marginTop: 5 },
+  value: { fontSize: 14, color: "red", fontWeight: "700", marginTop: 5 },
   flatList: {
     width: "100%",
     height: 200,
